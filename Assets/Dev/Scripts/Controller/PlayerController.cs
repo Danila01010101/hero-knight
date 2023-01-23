@@ -16,25 +16,25 @@ namespace Controller
 
         private void Awake()
         {
-            _player = new Player(_playerMovementSpeed, _jumpForce);
+            _player = new Player(transform.position, _playerMovementSpeed, _jumpForce);
         }
 
         private void OnEnable()
         {
-            _playerInput.OnPlayerMove += _player.Move;
-            _player.CharacterMoved += _playerView.SetMoveDirection;
-            _player.OnDirectionChange += _playerView.Flip;
-            _player.CharacterJumped += _playerView.Jump;
-            _playerView.GroundDetected += _player.DetectGround;
+            _playerInput.OnPlayerMove += _player.Transform.Move;
+            _player.Transform.Moved += _playerView.SetMoveDirection;
+            _player.Transform.OnDirectionChange += _playerView.Flip;
+            _player.Transform.CharacterJumped += _playerView.Jump;
+            _playerView.GroundDetected += _player.Transform.DetectGround;
         }
 
         private void OnDisable()
         {
-            _playerInput.OnPlayerMove -= _player.Move;
-            _player.CharacterMoved -= _playerView.SetMoveDirection;
-            _player.OnDirectionChange -= _playerView.Flip;
-            _player.CharacterJumped -= _playerView.Jump;
-            _playerView.GroundDetected -= _player.DetectGround;
+            _playerInput.OnPlayerMove -= _player.Transform.Move;
+            _player.Transform.Moved -= _playerView.SetMoveDirection;
+            _player.Transform.OnDirectionChange -= _playerView.Flip;
+            _player.Transform.CharacterJumped -= _playerView.Jump;
+            _playerView.GroundDetected -= _player.Transform.DetectGround;
         }
     }
 }

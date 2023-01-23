@@ -5,7 +5,7 @@ namespace View
 {
     public class PlayerInput : MonoBehaviour
     {
-        public Action<Vector3> OnPlayerMove;
+        public Action<Vector2> OnPlayerMove;
 
         private void Update()
         {
@@ -14,7 +14,7 @@ namespace View
 
         private void CheckMoveInput()
         {
-            Vector3 directionToMove = new Vector3();
+            Vector2 directionToMove = new Vector2();
 
             if (Input.GetKey(KeyCode.W)) directionToMove.y += 1;
             if (Input.GetKey(KeyCode.S)) directionToMove.y -= 1;

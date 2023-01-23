@@ -13,7 +13,7 @@ public class PlayerView : MonoBehaviour
     private bool _isCheckingGround = true;
     private PlayerAnimator _playerAnimator;
     private Rigidbody2D _rigidbody;
-    private Vector3 _moveDirection;
+    private Vector2 _moveDirection;
 
     public Action GroundDetected;
 
@@ -37,10 +37,10 @@ public class PlayerView : MonoBehaviour
         }
     }
 
-    public void SetMoveDirection(Vector3 newDirection)
+    public Vector2 SetMoveDirection(Vector2 newDirection)
     {
         _moveDirection = newDirection;
-        if (_moveDirection != Vector3.zero)
+        if (_moveDirection != Vector2.zero)
         {
             _playerAnimator.ChangeState(PlayerAnimator.AnimationState.Run);
         }
@@ -48,6 +48,7 @@ public class PlayerView : MonoBehaviour
         {
             _playerAnimator.ChangeState(PlayerAnimator.AnimationState.Idle);
         }
+        return new Vector2(transform.position.x, transform.position.y);
     }
 
     public void Flip()
