@@ -9,11 +9,11 @@ namespace Controller
         [SerializeField] private EnemyView _enemyView;
         [SerializeField] private float _movementSpeed = 2f;
 
-        private Enemy _enemy;
+        private BringerOfDeath _enemy;
 
         private void Awake()
         {
-            _enemy = new Enemy(_enemyView.transform.position, _movementSpeed);
+            _enemy = new BringerOfDeath(transform, _movementSpeed);
         }
 
         private void Start()
@@ -28,16 +28,28 @@ namespace Controller
 
         private void OnEnable()
         {
-            _enemy.Transform.Moved += _enemyView.SetMoveDirection;
-            _enemy.Transform.OnDirectionChange += _enemyView.Flip;
+            _enemy.Movement.Moved += _enemyView.Move;
+            _enemy.AttackStarted += _enemyView.Attack;
+            _enemyView.EnemyLost += _enemy.LoseTarget;
+            _enemyView.AttackEnded += _enemy.EndAttack;
+            _enemy.Movement.OnDirectionChange += _enemyView.Flip;
+            _enemyView.EnemyDetected += _enemy.DetectTargetToAttack;
             _enemy.AnimationStateChanged += _enemyView.SetAnimationState;
+            _enemyView.DamageTaken += _enemy.Health.TakeDamage;
+            _enemy.Health.Dying += _enemyView.Die;
         }
 
         private void OnDisable()
         {
-            _enemy.Transform.Moved -= _enemyView.SetMoveDirection;
-            _enemy.Transform.OnDirectionChange -= _enemyView.Flip;
+            _enemy.Movement.Moved -= _enemyView.Move;
+            _enemy.AttackStarted -= _enemyView.Attack;
+            _enemyView.EnemyLost -= _enemy.LoseTarget;
+            _enemyView.AttackEnded -= _enemy.EndAttack;
+            _enemy.Movement.OnDirectionChange -= _enemyView.Flip;
+            _enemyView.EnemyDetected -= _enemy.DetectTargetToAttack;
             _enemy.AnimationStateChanged -= _enemyView.SetAnimationState;
+            _enemyView.DamageTaken -= _enemy.Health.TakeDamage;
+            _enemy.Health.Dying -= _enemyView.Die;
         }
     }
 }

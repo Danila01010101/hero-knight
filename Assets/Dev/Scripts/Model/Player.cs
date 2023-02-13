@@ -1,17 +1,24 @@
-using System;
 using UnityEngine;
 
 namespace Model
 {
     public class Player
     {
-        private PlayerTransform _transform;
+        private Health _health;
+        private PlayerMovement _movement;
+        private CombatSystem _combatSystem;
 
-        public PlayerTransform Transform { get { return _transform; } }
+        public Health Health => _health;
+        public CombatSystem CombatSystem => _combatSystem;
+        public PlayerMovement Transform { get { return _movement; } }
 
-        public Player(Vector2 position, float movementSpeed, float jumpForce)
+        public Player(Transform transform, Sword weapon, float movementSpeed, float jumpForce)
         {
-            _transform = new PlayerTransform(position, movementSpeed, jumpForce);
+            _movement = new PlayerMovement(transform, movementSpeed, jumpForce);
+            _combatSystem = new CombatSystem(weapon);
+            _health = new Health();
+
+            _health.Dying += _movement.DisableMovement;
         }
     }
 }

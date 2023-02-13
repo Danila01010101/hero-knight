@@ -6,13 +6,15 @@ public class PlayerAnimator
 
 	private const string StateAnimatorName = "AnimationState";
 
-	private const string AtackTriggerAnimationName = "Attack";
-	private const string JumpTriggerAnimationName = "Jump";
+	private const string AttackTrigger = "Attack1";
+	private const string JumpTrigger = "Jump";
+	private const string DamageTrigger = "Hurt";
+	private const string DeathTrigger = "Death";
 
 	private const string IsGroundedAnimationName = "IsGrounded";
 
     public enum AnimationState { Idle = 0, Run = 1, Attack = 2}
-    public enum AnimationAction { Jump = 0, Attack = 1}
+    public enum AnimationAction { Jump = 0, Attack = 1, Damage = 2, Death = 3 }
 	public enum AnimationBoolean { IsGrounded = 0 }
 
 	public PlayerAnimator(Animator animator) 
@@ -35,7 +37,16 @@ public class PlayerAnimator
 		switch (animationAction)
 		{
 			case AnimationAction.Jump:
-				_animator.SetTrigger(JumpTriggerAnimationName);
+				_animator.SetTrigger(JumpTrigger);
+				break;
+			case AnimationAction.Damage:
+				_animator.SetTrigger(DamageTrigger);
+				break;
+			case AnimationAction.Attack:
+				_animator.SetTrigger(AttackTrigger);
+				break;
+			case AnimationAction.Death:
+				_animator.SetTrigger(DeathTrigger);
 				break;
 		}
 	}

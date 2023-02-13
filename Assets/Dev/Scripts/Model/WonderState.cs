@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Model
 {
-    public class WonderState : IState
+    public class WonderState : State
     {
-        private Transform _transform;
+        private Movement _movement;
         private Vector2 _patrolPosition;
         private float _patrollRadius = 3f;
         private float _patrollSpeed;
@@ -13,30 +13,27 @@ namespace Model
 
         public Action WonderStateEntered;
 
-        public WonderState(Transform transform, Vector2 startWonderPosition, float moveSpeed)
+        public WonderState(Movement transform, Vector2 startWonderPosition, float moveSpeed)
         {
             _patrolPosition = startWonderPosition;
-            _transform = transform;
+            _movement = transform;
             _patrollSpeed = moveSpeed;
         }
 
-        public void Enter()
+        public override void Enter()
         {
             WonderStateEntered?.Invoke();
         }
 
-        public void Exit()
-        {
-            throw new NotImplementedException();
-        }
+        public override void Exit() { }
 
-        public void Update()
+        public override void Update()
         {
             if (_isWalkingRight)
             {
-                if (_transform.CurrentPosition.x < _patrolPosition.x + _patrollRadius)
+                if (_movement.Transform.position.x < _patrolPosition.x + _patrollRadius)
                 {
-                    _transform.Move(new Vector2(_patrollSpeed, 0));
+                    _movement.Move(new Vector2(_patrollSpeed, 0));
                 }
                 else
                 {
@@ -45,9 +42,9 @@ namespace Model
             }
             else
             {
-                if (_transform.CurrentPosition.x > _patrolPosition.x - _patrollRadius)
+                if (_movement.Transform.position.x > _patrolPosition.x - _patrollRadius)
                 {
-                    _transform.Move(new Vector2(-_patrollSpeed, 0));
+                    _movement.Move(new Vector2(-_patrollSpeed, 0));
                 }
                 else
                 {

@@ -3,17 +3,16 @@ using UnityEngine;
 
 namespace Model
 {
-    public class Transform
+    public class Movement
     {
         private float _movementSpeed;
-        private Vector2 _position;
         private Directions _currentFaceDirection = Directions.Right;
         private enum Directions { Right, Left }
 
-        public Vector2 CurrentPosition { get { return _position; } }
+        public readonly Transform Transform;
 
         public Action OnDirectionChange;
-        public Func<Vector2, Vector2> Moved;
+        public Action<Vector2> Moved;
 
         public virtual void Move(Vector2 newMoveDirection)
         {
@@ -31,13 +30,12 @@ namespace Model
             var direction = Vector2.zero;
             direction.x = newMoveDirection.x * _movementSpeed;
 
-            if (Moved != null)
-                _position = Moved(direction);
+            Moved?.Invoke(direction);
         }
 
-        public Transform(Vector2 currentPosition, float movementSpeed)
+        public Movement(Transform transform, float movementSpeed)
         {
-            _position = currentPosition;
+            Transform = transform;
             _movementSpeed = movementSpeed;
         }
     }

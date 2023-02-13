@@ -1,5 +1,7 @@
 using System;
+using UnityEditor;
 using UnityEngine;
+using View;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -8,14 +10,17 @@ public class PlayerView : MonoBehaviour
     [Header("Ground Checking")]
     [SerializeField] private LayerMask _groundLayerMask;
     [SerializeField] private Transform _groundCheckPosition;
+    [SerializeField] private Transform _attackCenterPosition;
     [SerializeField] private float _groundCheckRadius = 0.25f;
 
+    private float _attackRadius = 1f;
     private bool _isCheckingGround = true;
     private PlayerAnimator _playerAnimator;
     private Rigidbody2D _rigidbody;
     private Vector2 _moveDirection;
 
     public Action GroundDetected;
+    public Action<int> DamageDetected;
 
     private void Awake()
     {
@@ -37,7 +42,7 @@ public class PlayerView : MonoBehaviour
         }
     }
 
-    public Vector2 SetMoveDirection(Vector2 newDirection)
+    public void SetMoveDirection(Vector2 newDirection)
     {
         _moveDirection = newDirection;
         if (_moveDirection != Vector2.zero)
@@ -48,7 +53,6 @@ public class PlayerView : MonoBehaviour
         {
             _playerAnimator.ChangeState(PlayerAnimator.AnimationState.Idle);
         }
-        return new Vector2(transform.position.x, transform.position.y);
     }
 
     public void Flip()
@@ -75,8 +79,49 @@ public class PlayerView : MonoBehaviour
         _playerAnimator.PlayAnimation(PlayerAnimator.AnimationAction.Jump);
     }
 
+    public void Attack()
+    {
+        _playerAnimator.PlayAnimation(PlayerAnimator.AnimationAction.Attack);
+    }
+
+    public void DealDamage()
+    {
+        Collider2D[] detectedObjects = Physics2D.OverlapCircleAll(_attackCenterPosition.position, _attackRadius);
+
+        foreach (Collider2D collider in detectedObjects)
+        {
+            EnemyView enemy;
+
+            if (collider.TryGetComponent(out enemy))
+            {
+                enemy.TakeDamage(3);
+            }
+        }
+    }
+
     private void OnDrawGizmos()
     {
-        Gizmos.DrawSphere(_groundCheckPosition.transform.position, 0.25f);
+        Gizmos.DrawWireSphere(_groundCheckPosition.transform.position, 0.25f);
+
+        Handles.color = Color.yellow;
+        if (_attackCenterPosition != null)
+        {
+            Handles.DrawWireDisc(_attackCenterPosition.position, Vector3.forward * 90, _attackRadius);
+        }
+    }
+
+    public void TakeDamage(int value)
+    {
+        DamageDetected?.Invoke(value);
+    }
+
+    public void TakeDamage()
+    {
+        _playerAnimator.PlayAnimation(PlayerAnimator.AnimationAction.Damage);
+    }
+
+    public void Die()
+    {
+        _playerAnimator.PlayAnimation(PlayerAnimator.AnimationAction.Death);
     }
 }
