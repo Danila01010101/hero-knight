@@ -1,9 +1,11 @@
 using System;
+using System.Collections;
 using UnityEditor;
 using UnityEngine;
 using View;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(Animator))]
 public class PlayerView : MonoBehaviour
 {
@@ -22,6 +24,8 @@ public class PlayerView : MonoBehaviour
     public Action GroundDetected;
     public Action<int> DamageDetected;
 
+    private bool _isGrounded=> Physics2D.OverlapCircle(_groundCheckPosition.position, _groundCheckRadius, _groundLayerMask) != null;
+
     private void Awake()
     {
         _playerAnimator = new PlayerAnimator(GetComponent<Animator>());
@@ -34,7 +38,7 @@ public class PlayerView : MonoBehaviour
         directionToMove.y = _rigidbody.velocity.y;
         _rigidbody.velocity = directionToMove;
 
-        if (_isCheckingGround && Physics2D.OverlapCircle(_groundCheckPosition.position, _groundCheckRadius, _groundLayerMask) != null)
+        if (_isCheckingGround && _isGrounded)
         {
             _isCheckingGround = false;
             _playerAnimator.SetAnimationBoolean(PlayerAnimator.AnimationBoolean.IsGrounded, true);
@@ -123,5 +127,18 @@ public class PlayerView : MonoBehaviour
     public void Die()
     {
         _playerAnimator.PlayAnimation(PlayerAnimator.AnimationAction.Death);
+        StartCoroutine(ColliderDisabling());
+    }
+
+    private IEnumerator ColliderDisabling()
+    {
+        while (_rigidbody.velocity.y != 0)
+        {
+            yield return null;
+        }
+        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.isKinematic = true;
+        GetComponent<Collider2D>().enabled = false;
+        GetComponent<PlayerView>().enabled = false;
     }
 }

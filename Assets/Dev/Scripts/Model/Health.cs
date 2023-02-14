@@ -16,12 +16,15 @@ namespace Model
             if (!_isAlive) return;
 
             _value -= value;
-            Hurt?.Invoke();
             if (_value <= 0)
             {
                 _value = 0;
                 _isAlive = false;
                 Dying?.Invoke();
+            }
+            else
+            {
+                Hurt?.Invoke();
             }
         }
     }

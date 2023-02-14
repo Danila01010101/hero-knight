@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace View
     {
         [SerializeField] private Rigidbody2D _rigidbody;
         [SerializeField] private Animator _animator;
+        [SerializeField] private CapsuleCollider _collider;
         [SerializeField] private Transform _attackCenter;
         [SerializeField] private Transform _detectCenter;
         [SerializeField] private Vector2 _detectSize;
@@ -76,13 +78,18 @@ namespace View
 
         public void TakeDamage(int damage)
         {
-            _animator.SetTrigger("Damaged");
             DamageTaken?.Invoke(damage);
+        }
+
+        public void Hurt()
+        {
+            _animator.SetTrigger("Damaged");
         }
 
         public void Die()
         {
             _animator.SetTrigger("Death");
+            StartCoroutine(ColliderDisabling());
         }
 
         public void DetectAttackEnd()
@@ -128,6 +135,18 @@ namespace View
             {
                 Handles.DrawWireDisc(_attackCenter.position, Vector3.forward * 90, _attackRadius);
             }
+        }
+
+        private IEnumerator ColliderDisabling()
+        {
+            while (_rigidbody.velocity.y != 0)
+            {
+                yield return null;
+            }
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.isKinematic = true;
+            GetComponent<EnemyView>().enabled = false;
+            GetComponent<Collider2D>().enabled = false;
         }
     }
 }

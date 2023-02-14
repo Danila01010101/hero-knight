@@ -27,7 +27,7 @@ namespace Model
 
             base.Move(newMoveDirection);
 
-            if (newMoveDirection.y >= 0.85f && _isGrounded)
+            if (newMoveDirection.y >= 0.5f && _isGrounded)
             {
                 _isGrounded = false;
                 CharacterJumped?.Invoke(_jumpForce);

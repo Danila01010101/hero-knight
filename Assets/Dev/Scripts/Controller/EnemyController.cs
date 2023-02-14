@@ -36,6 +36,8 @@ namespace Controller
             _enemyView.EnemyDetected += _enemy.DetectTargetToAttack;
             _enemy.AnimationStateChanged += _enemyView.SetAnimationState;
             _enemyView.DamageTaken += _enemy.Health.TakeDamage;
+            _enemy.Health.Hurt += _enemyView.Hurt;
+            _enemy.Health.Hurt += _enemy.EndAttack;
             _enemy.Health.Dying += _enemyView.Die;
         }
 
@@ -49,6 +51,8 @@ namespace Controller
             _enemyView.EnemyDetected -= _enemy.DetectTargetToAttack;
             _enemy.AnimationStateChanged -= _enemyView.SetAnimationState;
             _enemyView.DamageTaken -= _enemy.Health.TakeDamage;
+            _enemy.Health.Hurt -= _enemyView.Hurt;
+            _enemy.Health.Hurt -= _enemy.EndAttack;
             _enemy.Health.Dying -= _enemyView.Die;
         }
     }

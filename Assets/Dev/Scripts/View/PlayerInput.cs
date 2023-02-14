@@ -8,28 +8,37 @@ namespace View
         public Action<Vector2> OnPlayerMove;
         public Action Attack;
 
-        private MoveCommand _moveCommand;
+        private JoystickInputAsset _joystickInput;
+
+        private void Awake()
+        {
+            _joystickInput = new JoystickInputAsset();
+        }
 
         private void Start()
         {
-            _moveCommand = new MoveCommand(OnPlayerMove);
+            _joystickInput.Player.Attack.performed += context => Attack?.Invoke();
         }
 
         private void Update()
         {
-            CheckMoveInput();
+            var newDirection = _joystickInput.Player.Move.ReadValue<Vector2>();
+            OnPlayerMove?.Invoke(newDirection);
         }
 
-        private void CheckMoveInput()
+        public void Disable()
         {
-            if (Input.GetKey(KeyCode.W)) _moveCommand.AddDirection(MoveCommand.Direction.Up);
-            if (Input.GetKey(KeyCode.S)) _moveCommand.AddDirection(MoveCommand.Direction.Down);
-            if (Input.GetKey(KeyCode.D)) _moveCommand.AddDirection(MoveCommand.Direction.Right);
-            if (Input.GetKey(KeyCode.A)) _moveCommand.AddDirection(MoveCommand.Direction.Left);
+            GetComponent<PlayerInput>().enabled = false;
+        }
 
-            _moveCommand.Execute();
+        private void OnEnable()
+        {
+            _joystickInput.Enable();
+        }
 
-            if (Input.GetKey(KeyCode.Space)) Attack?.Invoke();
+        private void OnDisable()
+        {
+            _joystickInput.Disable();
         }
     }
 }

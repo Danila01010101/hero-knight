@@ -4,6 +4,8 @@ namespace Model
     {
         private State _currentState;
 
+        public State CurrentState { get; }
+
         public void Initialize(State startState)
         {
             _currentState = startState;

@@ -30,6 +30,7 @@ namespace Controller
             _playerView.DamageDetected += _player.Health.TakeDamage;
             _player.Health.Hurt += _playerView.TakeDamage;
             _player.Health.Dying += _playerView.Die;
+            _player.Health.Dying += _playerInput.Disable;
             _playerInput.Attack += _player.CombatSystem.TryAttack;
             _player.CombatSystem.Attack += _playerView.Attack;
         }
@@ -44,6 +45,7 @@ namespace Controller
             _playerView.DamageDetected -= _player.Health.TakeDamage;
             _player.Health.Hurt -= _playerView.TakeDamage;
             _player.Health.Dying -= _playerView.Die;
+            _player.Health.Dying -= _playerInput.Disable;
             _playerInput.Attack -= _player.CombatSystem.TryAttack;
             _player.CombatSystem.Attack -= _playerView.Attack;
         }
