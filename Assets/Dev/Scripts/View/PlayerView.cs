@@ -7,7 +7,7 @@ using View;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(Animator))]
-public class PlayerView : MonoBehaviour
+public class PlayerView : MonoBehaviour, IDamagable
 {
     [Header("Ground Checking")]
     [SerializeField] private LayerMask _groundLayerMask;
@@ -122,6 +122,11 @@ public class PlayerView : MonoBehaviour
     public void TakeDamage()
     {
         _playerAnimator.PlayAnimation(PlayerAnimator.AnimationAction.Damage);
+    }
+
+    public void Push(Vector2 force)
+    {
+        _rigidbody.AddForce(force, ForceMode2D.Impulse);
     }
 
     public void Die()

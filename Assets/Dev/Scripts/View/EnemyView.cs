@@ -6,54 +6,24 @@ using UnityEngine;
 namespace View
 {
     [RequireComponent(typeof(SpriteRenderer))]
-    public class EnemyView : MonoBehaviour
+    public class EnemyView : MonsterView
     {
-        [SerializeField] private Rigidbody2D _rigidbody;
-        [SerializeField] private Animator _animator;
         [SerializeField] private CapsuleCollider _collider;
         [SerializeField] private Transform _attackCenter;
         [SerializeField] private Transform _detectCenter;
         [SerializeField] private Vector2 _detectSize;
         [SerializeField] private float _attackRadius;
 
-        private Transform _transform;
         private SpriteRenderer _spriteRenderer;
-        private const string AnimationStateName = "state";
 
         public Action AttackEnded;
         public Action EnemyLost;
-        public Action<int> DamageTaken;
         public Action<Transform> EnemyDetected;
 
-        private void Start()
+        protected override void Start()
         {
-            _transform = transform;
+            base.Start();
             _spriteRenderer = GetComponent<SpriteRenderer>();
-        }
-
-        public void Move(Vector2 direction)
-        {
-            direction.y += _rigidbody.velocity.y;
-            _rigidbody.velocity = direction;
-        }
-
-        public void Flip()
-        {
-            Vector3 newRotation = _transform.eulerAngles;
-            if (_transform.rotation.y == 0)
-            {
-                newRotation.y = 180;
-            }
-            else
-            {
-                newRotation.y = 0;
-            }
-            _transform.eulerAngles = newRotation;
-        }
-
-        public void SetAnimationState(int newState)
-        {
-            _animator.SetInteger(AnimationStateName, newState);
         }
 
         public void Attack()
@@ -74,22 +44,6 @@ namespace View
                     characterView.TakeDamage(3);
                 }
             }
-        }
-
-        public void TakeDamage(int damage)
-        {
-            DamageTaken?.Invoke(damage);
-        }
-
-        public void Hurt()
-        {
-            _animator.SetTrigger("Damaged");
-        }
-
-        public void Die()
-        {
-            _animator.SetTrigger("Death");
-            StartCoroutine(ColliderDisabling());
         }
 
         public void DetectAttackEnd()
@@ -121,6 +75,12 @@ namespace View
             {
                 EnemyLost?.Invoke();
             }
+        }
+
+        public override void Die()
+        {
+            base.Die();
+            StartCoroutine(ColliderDisabling());
         }
 
         private void OnDrawGizmos()

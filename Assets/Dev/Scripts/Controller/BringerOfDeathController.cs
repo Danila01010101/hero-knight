@@ -4,7 +4,7 @@ using View;
 
 namespace Controller
 {
-    public class EnemyController : MonoBehaviour
+    public class BringerOfDeathController : MonoBehaviour
     {
         [SerializeField] private EnemyView _enemyView;
         [SerializeField] private float _movementSpeed = 2f;

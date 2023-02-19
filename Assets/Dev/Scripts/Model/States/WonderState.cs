@@ -13,10 +13,10 @@ namespace Model
 
         public Action WonderStateEntered;
 
-        public WonderState(Movement transform, Vector2 startWonderPosition, float moveSpeed)
+        public WonderState(Movement movement, float moveSpeed)
         {
-            _patrolPosition = startWonderPosition;
-            _movement = transform;
+            _movement = movement;
+            _patrolPosition = movement.Transform.position;
             _patrollSpeed = moveSpeed;
         }
 
