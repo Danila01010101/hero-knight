@@ -23,10 +23,9 @@ namespace Controller
         private void OnEnable()
         {
             _playerInput.OnPlayerMove += _player.Transform.Move;
-            _player.Transform.Moved += _playerView.SetMoveDirection;
+            _player.Transform.Moved += _playerView.DetectInput;
             _player.Transform.OnDirectionChange += _playerView.Flip;
             _player.Transform.CharacterJumped += _playerView.Jump;
-            _playerView.GroundDetected += _player.Transform.DetectGround;
             _playerView.DamageDetected += _player.Health.TakeDamage;
             _player.Health.Hurt += _playerView.TakeDamage;
             _player.Health.Dying += _playerView.Die;
@@ -38,10 +37,9 @@ namespace Controller
         private void OnDisable()
         {
             _playerInput.OnPlayerMove -= _player.Transform.Move;
-            _player.Transform.Moved -= _playerView.SetMoveDirection;
+            _player.Transform.Moved -= _playerView.DetectInput;
             _player.Transform.OnDirectionChange -= _playerView.Flip;
             _player.Transform.CharacterJumped -= _playerView.Jump;
-            _playerView.GroundDetected -= _player.Transform.DetectGround;
             _playerView.DamageDetected -= _player.Health.TakeDamage;
             _player.Health.Hurt -= _playerView.TakeDamage;
             _player.Health.Dying -= _playerView.Die;

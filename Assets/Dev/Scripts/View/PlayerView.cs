@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using View;
@@ -10,21 +11,28 @@ using View;
 public class PlayerView : MonoBehaviour, IDamagable
 {
     [Header("Ground Checking")]
+    [SerializeField] private LayerMask _contactLayer;
     [SerializeField] private LayerMask _groundLayerMask;
     [SerializeField] private Transform _groundCheckPosition;
     [SerializeField] private Transform _attackCenterPosition;
-    [SerializeField] private float _groundCheckRadius = 0.25f;
+    [SerializeField] private float _minGroundNormalY = 0.65f;
+    [SerializeField] private float _gravityModifier = 1f;
 
     private float _attackRadius = 1f;
-    private bool _isCheckingGround = true;
     private PlayerAnimator _playerAnimator;
     private Rigidbody2D _rigidbody;
-    private Vector2 _moveDirection;
+    private Vector2 _targetVelocity;
+    private Vector2 _velocity;
+    private Vector2 _groundNormal;
+     private ContactFilter2D _contactFilter;
+    private RaycastHit2D[] _hitBuffer = new RaycastHit2D[16];
+    private List<RaycastHit2D> _hitBufferList = new List<RaycastHit2D>(16);
+    private const float _minMoveDistance = 0.001f;
+    private const float _shellRadius = 0.01f;
 
-    public Action GroundDetected;
     public Action<int> DamageDetected;
 
-    private bool _isGrounded=> Physics2D.OverlapCircle(_groundCheckPosition.position, _groundCheckRadius, _groundLayerMask) != null;
+    private bool _isGrounded = true;
 
     private void Awake()
     {
@@ -32,24 +40,76 @@ public class PlayerView : MonoBehaviour, IDamagable
         _rigidbody = GetComponent<Rigidbody2D>();
     }
 
-    private void FixedUpdate()
+    private void Start()
     {
-        Vector3 directionToMove = _moveDirection;
-        directionToMove.y = _rigidbody.velocity.y;
-        _rigidbody.velocity = directionToMove;
-
-        if (_isCheckingGround && _isGrounded)
-        {
-            _isCheckingGround = false;
-            _playerAnimator.SetAnimationBoolean(PlayerAnimator.AnimationBoolean.IsGrounded, true);
-            GroundDetected?.Invoke();
-        }
+        _contactFilter.useTriggers = false;
+        _contactFilter.SetLayerMask(_contactLayer);
+        _contactFilter.useLayerMask = false;
     }
 
-    public void SetMoveDirection(Vector2 newDirection)
+    private void FixedUpdate()
     {
-        _moveDirection = newDirection;
-        if (_moveDirection != Vector2.zero)
+        _velocity += _gravityModifier * Physics2D.gravity * Time.deltaTime;
+        _velocity.x = _targetVelocity.x;
+
+        _isGrounded = false;
+
+        Vector2 deltaPosition = _velocity * Time.deltaTime;
+        Vector2 moveAlongGround = new Vector2(_groundNormal.y, -_groundNormal.x);
+        Vector2 move = moveAlongGround * deltaPosition.x;
+
+        Movement(move, false);
+
+        move = Vector2.up * deltaPosition.y;
+
+        Movement(move, true);
+    }
+
+    public void Movement(Vector2 move, bool yMovement)
+    {
+        float distance = move.magnitude;
+
+        if (distance > _minMoveDistance)
+        {
+            int count = _rigidbody.Cast(move, _contactFilter, _hitBuffer, distance + _shellRadius);
+
+            _hitBufferList.Clear();
+
+            for (int i = 0; i< count; i++)
+            {
+                _hitBufferList.Add(_hitBuffer[i]);
+            }
+
+            for (int i = 0; i < _hitBufferList.Count; i++)
+            {
+                Vector2 currentNormal = _hitBufferList[i].normal;
+                if (currentNormal.y > _minGroundNormalY)
+                {
+                    _isGrounded = true;
+                    if (yMovement)
+                    {
+                        _groundNormal = currentNormal;
+                        currentNormal.x = 0;
+                    }
+
+                    _playerAnimator.SetAnimationBoolean(PlayerAnimator.AnimationBoolean.IsGrounded, _isGrounded);
+                }
+
+                float projection = Vector2.Dot(_velocity, currentNormal);
+                if (projection < 0)
+                {
+                    _velocity -= projection * currentNormal;
+                }
+
+                float modifiedDistance = _hitBufferList[i].distance - _shellRadius;
+                distance = modifiedDistance < distance ? modifiedDistance : distance;
+            }
+
+            _rigidbody.position += move.normalized * distance;
+        }
+
+
+        if (_targetVelocity != Vector2.zero)
         {
             _playerAnimator.ChangeState(PlayerAnimator.AnimationState.Run);
         }
@@ -71,16 +131,6 @@ public class PlayerView : MonoBehaviour, IDamagable
             newRotation.y = 0;
         }
         transform.eulerAngles = newRotation;
-    }
-
-    public void Jump(float jumpForce)
-    {
-        _isCheckingGround = true;
-        Vector3 newVelocity = _rigidbody.velocity;
-        newVelocity.y = jumpForce;
-        _rigidbody.velocity = newVelocity;
-        _playerAnimator.SetAnimationBoolean(PlayerAnimator.AnimationBoolean.IsGrounded, false);
-        _playerAnimator.PlayAnimation(PlayerAnimator.AnimationAction.Jump);
     }
 
     public void Attack()
@@ -122,6 +172,19 @@ public class PlayerView : MonoBehaviour, IDamagable
     public void TakeDamage()
     {
         _playerAnimator.PlayAnimation(PlayerAnimator.AnimationAction.Damage);
+    }
+
+    public void DetectInput(Vector2 velocity)
+    {
+        _targetVelocity.x = velocity.x;
+    }
+
+    public void Jump(float jumpForce)
+    {
+        if (_isGrounded)
+        {
+            _velocity.y = jumpForce;
+        }
     }
 
     public void Push(Vector2 force)

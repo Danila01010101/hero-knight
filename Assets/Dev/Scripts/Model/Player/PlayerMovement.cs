@@ -7,7 +7,6 @@ namespace Model
     public class PlayerMovement : Movement
     {
         private float _jumpForce;
-        private bool _isGrounded = true;
         private bool _canMove = true;
         private float _stunStarted;
         private float _stunDuration;
@@ -27,9 +26,8 @@ namespace Model
 
             base.Move(newMoveDirection);
 
-            if (newMoveDirection.y >= 0.5f && _isGrounded)
+            if (newMoveDirection.y >= 0.5f)
             {
-                _isGrounded = false;
                 CharacterJumped?.Invoke(_jumpForce);
             }
             if (newMoveDirection.y <= -0.85f)
@@ -64,11 +62,6 @@ namespace Model
         private void EnableMovement()
         {
             _canMove = true;
-        }
-
-        public void DetectGround()
-        {
-            _isGrounded = true;
         }
     }
 }
