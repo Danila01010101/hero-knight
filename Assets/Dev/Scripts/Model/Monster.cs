@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using static Model.BringerOfDeath;
 
 namespace Model
 {

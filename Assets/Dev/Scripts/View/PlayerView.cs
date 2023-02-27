@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using View;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
@@ -17,6 +16,10 @@ public class PlayerView : MonoBehaviour, IDamagable
     [SerializeField] private Transform _attackCenterPosition;
     [SerializeField] private float _minGroundNormalY = 0.65f;
     [SerializeField] private float _gravityModifier = 1f;
+    [Header("Attack")]
+    [SerializeField] private LayerMask _enemiesLayer;
+    [Space(5)]
+    [SerializeField] private ParticleSystem _damageParticles;
 
     private float _attackRadius = 1f;
     private PlayerAnimator _playerAnimator;
@@ -140,11 +143,11 @@ public class PlayerView : MonoBehaviour, IDamagable
 
     public void DealDamage()
     {
-        Collider2D[] detectedObjects = Physics2D.OverlapCircleAll(_attackCenterPosition.position, _attackRadius);
+        Collider2D[] detectedObjects = Physics2D.OverlapCircleAll(_attackCenterPosition.position, _attackRadius, _enemiesLayer);
 
         foreach (Collider2D collider in detectedObjects)
         {
-            EnemyView enemy;
+            IDamagable enemy;
 
             if (collider.TryGetComponent(out enemy))
             {
@@ -208,5 +211,10 @@ public class PlayerView : MonoBehaviour, IDamagable
         _rigidbody.isKinematic = true;
         GetComponent<Collider2D>().enabled = false;
         GetComponent<PlayerView>().enabled = false;
+    }
+
+    public ParticleSystem GetDamageParticles()
+    {
+        return _damageParticles;
     }
 }

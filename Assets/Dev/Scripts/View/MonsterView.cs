@@ -5,6 +5,7 @@ public class MonsterView : MonoBehaviour, IDamagable
 {
     [SerializeField] private protected Rigidbody2D _rigidbody;
     [SerializeField] private protected Animator _animator;
+    [SerializeField] private ParticleSystem _damageParticles;
 
     private Transform _transform;
     private const string AnimationStateName = "state";
@@ -54,5 +55,10 @@ public class MonsterView : MonoBehaviour, IDamagable
     public virtual void Die()
     {
         _animator.SetTrigger("Death");
+    }
+
+    public ParticleSystem GetDamageParticles()
+    {
+        return _damageParticles;
     }
 }

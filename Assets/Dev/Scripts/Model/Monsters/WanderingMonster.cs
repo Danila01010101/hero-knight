@@ -1,5 +1,4 @@
 using UnityEngine;
-using static PlayerAnimator;
 
 namespace Model
 {
